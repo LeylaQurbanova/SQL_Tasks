@@ -1,0 +1,103 @@
+/*
+Verilən datanın (value) bazada hansı table və hansı columnda olduğunu tap.
+*/
+
+create or replace procedure find_data (in_data_str varchar2)
+is
+    type nt_tab is table of varchar2(2000);
+        v_tabs nt_tab;
+        v_cols nt_tab;
+        v_data nt_tab;
+        sql_qry varchar2(1000);
+begin
+    sql_qry:='select table_name,column_name from user_tab_columns';
+    execute immediate sql_qry bulk collect into v_tabs,v_cols;
+    
+    for i in 1..v_tabs.count
+    loop
+        sql_qry:='select '||v_cols(i)||' from '||v_tabs(i);
+        execute immediate sql_qry bulk collect into v_data;
+        for j in 1..v_data.count
+        loop
+            if v_data(j)=in_data_str then
+            dbms_output.put_line('Data in '||v_cols(i)||' column of '||v_tabs(i)||' table.');
+            end if;
+        end loop;
+    end loop;
+    
+end;
+/
+
+execute find_data('12345');
+
+
+/*
+Stored Procedure-a table adi və rəqəm göndəririk, həmin tabledan o sayda sətri silir.
+*/
+
+create or replace procedure deleted_rows (table_name varchar2,row_count number)
+is
+sql_qry varchar2(300);
+begin
+for i in 1..row_count
+loop
+sql_qry:='delete from '||table_name||' where rowid=(select min(rowid) from '||table_name||')';
+execute immediate sql_qry;
+end loop;
+end;
+/
+
+execute deleted_rows('cedvel_adi',5);
+
+
+/*
+Bazada olan butun table-lara "deleted" adli column yarat.
+*/
+
+declare
+type nt_tab is table of varchar2(500);
+v_tab nt_tab;
+sql_qry varchar2(500);
+begin
+select object_name bulk collect into v_tab from user_objects where object_type='TABLE';
+for i in 1..v_tab.count
+loop
+dbms_output.put_line('alter table '||v_tab(i)||' add deleted number');
+
+/*
+sql_qry:='alter table '||v_tab(i)||' add deleted number';
+execute immediate sql_qry;
+*/ 
+
+end loop;
+end;
+/
+
+
+/*
+Bazada olan sequence,view ve table obyektlerini sil (cascade nezere al):
+*/
+
+declare
+type nt_tab is table of varchar2(50);
+v_obj nt_tab;
+v_obj_type nt_tab;
+sql_qry varchar2(500);
+begin
+select object_name,object_type bulk collect into v_obj,v_obj_type from user_objects;
+for i in 1..v_obj.count
+loop
+dbms_output.put_line(v_obj(i)||' '||v_obj_type(i));
+/*
+case when v_obj_type(i) in('VIEW','SEQUENCE') then
+sql_qry:='drop '||v_obj_type(i)||' '||v_obj(i);
+execute immediate sql_qry;
+else
+dbms_output.put_line('this is table');
+sql_qry:='drop '||v_obj_type(i)||' '||v_obj(i)||' cascade constraint';
+execute immediate sql_qry;
+end case;
+*/  -- bunu komentariyada yazdimki run etsez silinmesin hecne
+end loop;
+end;
+/
