@@ -1,0 +1,11 @@
+declare
+v_number number:=&input;
+v_factorial number:=1;
+begin
+for v_counter in 2..v_number
+loop
+v_factorial:=v_factorial*v_counter;
+end loop;
+dbms_output.put_line(v_factorial);
+end;
+/
