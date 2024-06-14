@@ -1,0 +1,81 @@
+-- ededin reqemleri cemini hesablayan funksiya
+
+create or replace function sum_numbers(eded in number)
+return number
+is
+v_sum number:=0;
+begin
+for i in 1..length(eded)
+loop
+v_sum:=v_sum+substr(eded,i,1);
+end loop;
+return v_sum;
+end;
+/
+
+select sum_numbers(4875) from dual;
+
+
+-- palindrom
+
+create or replace function palindrom(v_string in varchar2)
+return varchar2
+is
+v_result varchar2(30);
+begin
+for i in 1..length(v_string)
+loop
+if
+substr(v_string,i,1)=substr(v_string,-i,1) then
+v_result:='palindrom';
+else 
+v_result:='not palindrom';
+end if;
+end loop;
+return v_result;
+end;
+/
+
+select palindrom(121) from dual;
+
+
+-- 2 tarix arasindaki saturdaylarin sayini tapan funksiya
+
+create or replace function saturdays_count(date1 in date, date2 in date)
+return number
+is
+weeks number:=(to_date(date2,'dd-mon-yyyy')-to_date(date1,'dd-mon-yyyy'))/7;
+v_saturdays varchar2(30);
+v_count number:=0;
+begin
+for i in 1..weeks
+loop
+select next_day((to_date(date1)-7)+i*7,'saturday') into v_saturdays from dual;
+v_count:=v_count+1;
+end loop;
+return v_count;
+end;
+/
+
+select saturdays_count('11-jan-2023','10-mar-2023') from dual;
+
+
+-- heftenin gununu de daxil etmekle (meselen sunday) 2 tarix arasindaki hefte gunlerinin sayini tapan funksiya
+
+create or replace function week_day_count(date1 in date, date2 in date,week_day in varchar2)
+return number
+is
+weeks number:=(to_date(date2,'dd-mon-yyyy')-to_date(date1,'dd-mon-yyyy'))/7;
+day_of_week varchar2(30);
+v_count number:=0;
+begin
+for i in 1..weeks
+loop
+select next_day((to_date(date1)-7)+i*7,week_day) into day_of_week from dual;
+v_count:=v_count+1;
+end loop;
+return v_count;
+end;
+/
+
+select week_day_count('01-jan-2023','20-mar-2023','monday') from dual;
