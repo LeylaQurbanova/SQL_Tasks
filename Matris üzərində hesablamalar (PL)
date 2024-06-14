@@ -1,0 +1,61 @@
+/*
+Stored procedure-da matrisin ölçülərini daxil edirik və procedure matrisin sağ və sol diaqonalında duran rəqəmlərin cəmini, eyni zamanda tək yerdə və cüt yerdə duran rəqəmlərin cəmini hesablayır.
+*/
+
+create or replace procedure massiv_proc(in_row number, in_col number)
+is
+    type nt_massiv is table of number;
+    v_massiv nt_massiv:=nt_massiv(2,3,8,25,14,9,23,11,1,58,20,12,5,32,6,15,7,13,26,99,74,4,51,16,10);
+    v_rc number:=1;
+    v_col_row number;
+    v_sum_odd number:=0;
+    v_sum_even number:=0;
+    left_diagonal_sum number:=0;
+    right_diagonal_sum number:=0;
+    v_left_diagonal_idx number:=1;
+    v_right_diagonal_idx number:=in_row;
+begin
+    for i in 1..in_row
+        loop
+            v_col_row:=in_col;
+            v_col_row:=v_col_row*i;
+            for j in v_rc..v_col_row
+                loop    
+                     dbms_output.put(v_massiv(j)||' ');
+                end loop;
+                dbms_output.put_line('');
+                v_rc:=v_col_row+1;
+        end loop;
+    dbms_output.new_line();
+    for n in 1..in_row*in_col
+        loop
+            if mod(n,2)=1 or n=1 then
+                v_sum_odd:=v_sum_odd+v_massiv(n);
+            elsif mod(n,2)=0 then
+                v_sum_even:=v_sum_even+v_massiv(n);
+            end if;
+        end loop; 
+
+    dbms_output.put_line('Odd numbers sum: '||v_sum_odd);
+    dbms_output.put_line('Even numbers sum: '||v_sum_even); 
+
+    if in_row!=in_col then
+        dbms_output.put_line('The diagonal was not formed');
+        
+    elsif in_row=in_col then
+        left_diagonal_sum:=Left_diagonal_sum+v_massiv(1);
+        right_diagonal_sum:=right_diagonal_sum+v_massiv(in_row);
+        for idx in 2..in_row
+            loop
+                v_left_diagonal_idx:=v_left_diagonal_idx+in_row+1;
+                left_diagonal_sum:=left_diagonal_sum+v_massiv(v_left_diagonal_idx);
+                v_right_diagonal_idx:=v_right_diagonal_idx+(in_row-1);
+                right_diagonal_sum:=right_diagonal_sum+v_massiv(v_right_diagonal_idx);
+            end loop; 
+        dbms_output.put_line('Left diagonal elements sum: '||left_diagonal_sum);
+        dbms_output.put_line('Right diagonal elements sum: '||right_diagonal_sum); 
+    end if;
+end;
+/
+
+execute massiv_proc(3,3);
