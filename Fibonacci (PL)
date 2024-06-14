@@ -1,0 +1,50 @@
+--fibonaci sirasinda gonderilen sira nomresinde hansi eded oldugunu goster:
+
+declare
+v_fibonaci_sira_no number:=&input;
+v_1 number:=0;
+v_2 number:=1;
+v_fibonaci_ededi number;
+begin
+if v_fibonaci_sira_no=1 then
+dbms_output.put_line(v_1);
+elsif v_fibonaci_sira_no=2 then
+dbms_output.put_line(v_2);
+else
+for i in 3..v_fibonaci_sira_no
+loop
+v_fibonaci_ededi:=v_1+v_2;
+v_1:=v_2;
+v_2:=v_fibonaci_ededi;
+end loop;
+dbms_output.put_line(v_fibonaci_ededi);
+end if;
+end;
+/
+
+
+-- gonderilen sira nomresine qeder fibonaci sirasini printe ver:
+
+declare
+v_fibonaci_sira_no number:=&input;
+v_1 number:=0;
+v_2 number:=1;
+v_sum number;
+begin
+if v_fibonaci_sira_no=1 then
+dbms_output.put_line(v_1);
+elsif v_fibonaci_sira_no=2 then
+dbms_output.put_line(v_1||' '||v_2);
+else
+dbms_output.put(v_1||' '||v_2);
+for i in 3..v_fibonaci_sira_no
+loop
+v_sum:=v_1+v_2;
+dbms_output.put(' '||v_sum);
+v_1:=v_2;
+v_2:=v_sum;
+end loop;
+dbms_output.put_line('');
+end if;
+end;
+/
