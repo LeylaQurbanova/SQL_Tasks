@@ -1,0 +1,139 @@
+/*
+Gəlir vergisi, DSMF, işsizlik sığortası, icbari sığorta nəzərə alınmaqla əmək haqqının məbləğinə və sektora görə net əmək haqqının hesablanması.
+*/
+
+set serveroutput on;
+
+declare
+v_gross number:=&emek_haqqi;
+v_sektor number:=&1_neft_2_qeyrineft;
+v_gelir_vergisi number;
+v_dsmf number;
+v_issizlik_sigorta number;
+v_icbari_sigorta number;
+v_netto number;
+begin
+
+if v_gross<=200 and v_sektor=2 then
+v_gelir_vergisi:=0;
+v_dsmf:=v_gross*3/100;
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=v_gross*2/100;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+elsif (v_gross between 201 and 8000) and v_sektor=2 then
+v_gelir_vergisi:=0;
+v_dsmf:=6+((v_gross-200)*10/100);
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=v_gross*2/100;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+elsif v_gross>8000 and v_sektor=2 then
+v_gelir_vergisi:=(v_gross-8000)*14/100;
+v_dsmf:=6+((v_gross-200)*10/100);
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=160+(v_gross-8000)*5/1000;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+elsif v_gross<=2500 and v_sektor=1 then
+v_gelir_vergisi:=(v_gross-200)*14/100;
+v_dsmf:=v_gross*3/100;
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=v_gross*2/100;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+elsif (v_gross between 2501 and 8000) and v_sektor=1 then
+v_gelir_vergisi:=350+(v_gross-2500)*25/100;
+v_dsmf:=v_gross*3/100;
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=v_gross*2/100;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+elsif v_gross>8000 and v_sektor=1 then
+v_gelir_vergisi:=350+(v_gross-2500)*25/100;
+v_dsmf:=v_gross*3/100;
+v_issizlik_sigorta:=v_gross*5/1000;
+v_icbari_sigorta:=160+(v_gross-8000)*5/1000;
+v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+
+else dbms_output.put_line('Zehmet olmasa duzgun melumatlar daxil edin');
+end if;
+dbms_output.put_line('Hesablanan ayliq emek haqqi:  '||v_gross);
+dbms_output.put_line('Gelir vergisi:               -'||v_gelir_vergisi);
+dbms_output.put_line('DSMF ayirmalari:             -'||v_dsmf);
+dbms_output.put_line('Issizlikden sigorta haqqi:   -'||v_issizlik_sigorta);
+dbms_output.put_line('Icbari tibbi sigorta haqqi:  -'||v_icbari_sigorta);
+dbms_output.put_line('Yekun odenilecek mebleg:      '||v_netto);
+end;
+/
+
+
+
+
+
+declare
+    v_gross number:=&emek_haqqi;
+    v_sektor number:=&1_neft_2_qeyrineft;
+    v_gelir_vergisi number;
+    v_dsmf number;
+    v_issizlik_sigorta number;
+    v_icbari_sigorta number;
+    v_netto number;
+begin
+
+    if v_sektor=1 then
+
+        /*Gəlir vergisinin hesablanması*/
+        if v_gross<=2500 then
+            v_gelir_vergisi:=(v_gross-200)*14/100;
+        elsif v_gross>2500 then
+            v_gelir_vergisi:=350+(v_gross-2500)*25/100;         
+        end if;
+    
+        /*İcbari sığortanın hesablanması*/
+        if v_gross>8000 then
+            v_icbari_sigorta:=160+(v_gross-8000)*5/1000;
+        else 
+            v_icbari_sigorta:=v_gross*2/100;
+        end if;
+    
+        v_dsmf:=v_gross*3/100;
+        v_issizlik_sigorta:=v_gross*5/1000;
+    
+    elsif v_sektor=2 then
+
+        /*Gəlir vergisinin hesablanması*/
+        if v_gross>8000 then
+            v_gelir_vergisi:=(v_gross-8000)*14/100;  
+        else 
+            v_gelir_vergisi:=0;
+        end if;
+    
+        /*DSMF hesablanması*/
+        if v_gross<=200 then
+            v_dsmf:=v_gross*3/100;
+        elsif v_gross>200 then
+            v_dsmf:=6+((v_gross-200)*10/100);
+        end if;
+    
+        /*İcbari sığorta hesablanması*/
+        if v_gross>8000 then
+            v_icbari_sigorta:=160+(v_gross-8000)*5/1000;
+        else 
+            v_icbari_sigorta:=v_gross*2/100;
+        end if;
+   
+        v_issizlik_sigorta:=v_gross*5/1000;
+
+    end if;
+
+    v_netto:=v_gross-(v_gelir_vergisi+v_dsmf+v_issizlik_sigorta+v_icbari_sigorta);
+    
+    dbms_output.put_line('Hesablanan ayliq emek haqqi:  '||v_gross);
+    dbms_output.put_line('Gelir vergisi:               -'||v_gelir_vergisi);
+    dbms_output.put_line('DSMF ayirmalari:             -'||v_dsmf);
+    dbms_output.put_line('Issizlikden sigorta haqqi:   -'||v_issizlik_sigorta);
+    dbms_output.put_line('Icbari tibbi sigorta haqqi:  -'||v_icbari_sigorta);
+    dbms_output.put_line('Yekun odenilecek mebleg:      '||v_netto);
+end;
+/
