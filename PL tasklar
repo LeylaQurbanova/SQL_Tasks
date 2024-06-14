@@ -1,0 +1,86 @@
+-- ededin armstrong olub olmadigini yoxlayan funksiya
+
+create or replace function armstrong_number(v_number number)
+return varchar2
+is
+v_pow number;
+v_sum number:=0;
+v_result varchar2(30);
+begin
+for i in 1..length(v_number)
+loop
+v_pow:=power(substr(v_number,i,1),length(v_number));
+v_sum:=v_sum+v_pow;
+end loop;
+if v_sum=v_number then
+v_result:=v_number||' '||'is armstrong number';
+else v_result:=v_number||' '||'is not armstrong number';
+end if;
+return v_result;
+end;
+/
+
+select armstrong_number(523) from dual;
+
+
+
+-- leap year or not
+
+create or replace function leap_year(v_year number)
+return varchar2
+is
+v_result varchar2(30);
+begin
+if mod(v_year,4)=0 and mod(v_year,100)=0 and mod(v_year,400)=0 then
+v_result:=v_year||' '||'is leap year';
+else v_result:=v_year||' '||'is not leap year';
+end if;
+return v_result;
+end;
+/
+
+select leap_year(2400) from dual;
+
+
+-- ededin reqemlerinin, reqemlerin sayi qeder quvvet ustunu 1-1 azaltmaqla cemi
+
+create or replace function fake_armstrong(v_number number)
+return number
+is
+v_length number:=length(v_number);
+v_pow number;
+v_sum number:=0;
+begin
+for i in 1..v_length
+loop
+v_pow:=power(substr(v_number,i,1),(v_length+1-i));
+v_sum:=v_sum+v_pow;
+end loop;
+return v_sum;
+end;
+/
+
+select fake_armstrong(213) from dual;
+
+
+
+
+
+--- cursorla her 6 setrden bir dotted işaresi yaz
+
+
+declare
+cursor cur_dicloan is select*from dic_loan;
+v_dicloan cur_dicloan%rowtype;
+begin
+dbms_output.put_line('contract_id'||'  '||'customer_id');
+dbms_output.put_line('');
+for i in cur_dicloan
+loop
+dbms_output.put_line(i.contract_id||'  '||i.customer_id);
+if mod(cur_dicloan%rowcount,6)=0 then
+dbms_output.put_line('-------------  ------');
+end if;
+end loop;
+end;
+/
