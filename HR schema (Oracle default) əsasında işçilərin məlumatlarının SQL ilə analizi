@@ -1,0 +1,81 @@
+Tapşırıq:
+
+1.2) EMP DETAILS VIEW istifadə etmədən SQL
+skript yazın. SQL-in nəticəsində aşağıdakı
+məlumatlar görünməlidir:
+• İşçinin ID-si
+• İşçinin adı və soyadı bir sütunda
+• İşçinin cari vəzifəsi (tam olaraq)
+• İşçinin maaşı
+• İşçinin işlədiyi cari departamentin adı
+
+1.3) "1.2" saylı tapşırığın SQL koduna aşağıdakı
+punktlara cavab verəcək əlavələri edin:
+• İşçinin işlədiyi departamentdə minimum əmək
+haqqi
+• İşçinin işlədiyi departamentdə maksimum
+əmək haqqı
+• İşçiyə işlədiyi departamentin aylıq əmək
+haqqı büdcəsinin neçə faizi aylıq olaraq
+İşçiyə verilir
+
+1.4) "1.2" saylı ("1.3" deyil, məhz "1.2" saylı)
+tapşırığın SQL koduna aşağıdakı punktlara
+cavab verəcək əlavələri edin:
+• Yalnız nə vaxtsa vəzifəsi dəyişmiş işçilərin
+siyahısı çıxsın
+• İşçinin ilk dəfə işə götürülmə tarixi
+• İşçinin ilk dəfə işə götürüldüyü vəzifə
+• İşçinin son dəfə vəzifəsinin dəyişilmə tarixi
+• İşçinin vəzifəsinin dəyişmə sayı
+
+
+Həlli:
+
+--tapsiriq 1.2
+
+select a.employee_id, a.first_name || ' ' || a.last_name as ad_soyad, b.job_title, a.salary, c.department_name, a.department_id 
+from employees a left join jobs b on a.job_id=b.job_id left join departments c on a.department_id=c.department_id;
+
+
+
+
+--tapsiriq 1.3
+
+select t1.employee_id,t1.ad_soyad,t1.job_title,t1.salary,t1.department_name,t2.dept_min_salary,t2.dept_max_salary,
+round((t1.salary*100)/t2.dept_salary_sum,1) as percent_dept_sum_salary from
+
+(select a.employee_id, a.first_name || ' ' || a.last_name as ad_soyad, b.job_title, a.salary, c.department_name, a.department_id 
+from employees a left join jobs b on a.job_id=b.job_id left join departments c on a.department_id=c.department_id
+) t1 
+
+left join 
+
+(select department_id, min(salary) as dept_min_salary, max(salary) as dept_max_salary, sum(salary) as dept_salary_sum 
+from employees group by department_id) t2 
+on t1.department_id=t2.department_id;
+
+
+
+
+--tapsiriq 1.4
+
+select * from
+
+(select t1.*,t2.first_hire_date,t3.job_title || ','|| t3.department_name as first_job, t2.last_hire_date,t2.count_job_changes from
+(select a.employee_id, a.first_name || ' ' || a.last_name as ad_soyad, b.job_title, a.salary, c.department_name from employees a
+left join jobs b on a.job_id=b.job_id left join departments c on a.department_id=c.department_id) t1 
+
+right join 
+
+(select employee_id,min(start_date) as first_hire_date,count(*) as count_job_changes,max(start_date) as last_hire_date 
+from job_history group by employee_id) t2
+on t1.employee_id=t2.employee_id
+
+left join
+
+(select a.employee_id,a.start_date,b.job_title,c.department_name from job_history a 
+left join jobs b on a.job_id=b.job_id left join departments c on a.department_id=c.department_id) t3
+on t2.employee_id=t3.employee_id and t2.first_hire_date=t3.start_date)
+
+group by employee_id,ad_soyad,job_title,salary,department_name,first_hire_date,first_job,last_hire_date,count_job_changes;
