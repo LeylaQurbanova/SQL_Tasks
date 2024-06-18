@@ -34,7 +34,7 @@ Həlli:
 
 --tapsiriq 1.2
 
-select a.employee_id, a.first_name || ' ' || a.last_name as ad_soyad, b.job_title, a.salary, c.department_name, a.department_id 
+select a.employee_id, a.first_name || ' ' || a.last_name as ad_soyad, b.job_title, a.salary, c.department_name 
 from employees a left join jobs b on a.job_id=b.job_id left join departments c on a.department_id=c.department_id;
 
 
